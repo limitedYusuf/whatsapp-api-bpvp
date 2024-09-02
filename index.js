@@ -28,7 +28,12 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 const server = require("http").createServer(app);
-const io = require("socket.io")(server);
+const io = require("socket.io")(server, {
+   cors: {
+      origin: "*",
+      methods: ["GET", "POST"]
+   }
+});
 const port = process.env.PORT || 8000;
 const qrcode = require("qrcode");
 
@@ -50,7 +55,7 @@ async function connectToWhatsApp() {
    const { state, saveCreds } = await useMultiFileAuthState('baileys_auth_info')
    let { version, isLatest } = await fetchLatestBaileysVersion();
    sock = makeWASocket({
-      printQRInTerminal: true,
+      printQRInTerminal: false,
       auth: state,
       logger: log({ level: "silent" }),
       version,
@@ -585,6 +590,7 @@ app.get('/logout', (req, res) => {
       if (fs.existsSync(authInfoPath)) {
          fs.rmdirSync(authInfoPath, { recursive: true });
       }
+      connectToWhatsApp()
       res.json({ status: 'Logged out from WhatsApp. Silakan scan QR code lagi.' });
    } else {
       res.json({ status: 'Not connected to WhatsApp' });
@@ -593,6 +599,19 @@ app.get('/logout', (req, res) => {
 
 connectToWhatsApp()
    .catch(err => console.log("unexpected error: " + err))
+
+   app.get('/login', (req, res) => {
+      if (isConnected()) {
+         res.json({ status: 'Sudah Login' });
+      } else {
+         connectToWhatsApp()
+         res.json({ 
+            value: qr,
+            status: 'Not connected to WhatsApp. Silakan scan QR code untuk login' 
+         });
+      }
+   });
+
 server.listen(port, () => {
    console.log("Server Berjalan pada Port : " + port);
 });
