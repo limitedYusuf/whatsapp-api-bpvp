@@ -145,8 +145,8 @@ async function connectToWhatsApp() {
 
 io.on("connection", async (socket) => {
    soket = socket;
-   // console.log(sock)
-   if (sock.user && sock.user.jid) {
+   console.log(sock)
+   if (isConnected()) {
       updateQR("connected");
    } else if (qr) {
       updateQR("qr");
@@ -154,7 +154,7 @@ io.on("connection", async (socket) => {
 });
 
 const isConnected = () => {
-   return (sock.user);
+   return (sock && sock.user);
 };
 
 const updateQR = (data) => {
