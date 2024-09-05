@@ -1,30 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
 
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Websoket</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-  </head>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Websoket</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
 
-  <body>
-    <div class="container">
-      <h1>QR</h1>
-      <div id="qrCodeImage"></div>
-    </div>
+<body>
+  <div class="container">
+    <h1>QR</h1>
+    <div id="qrCodeImage"></div>
+    <h4>Info <span id="info"></span></h4>
+  </div>
 
-    <script src="https://cdn.socket.io/4.4.1/socket.io.min.js"></script>
-    <script>
-      const socket = io('http://127.0.0.1:8000/');
+  <script src="https://cdn.socket.io/4.4.1/socket.io.min.js"></script>
+  <script>
+    const socket = io('http://127.0.0.1:8000/');
 
-      socket.on('qr', (value) => {
-        console.log('jalan')
-        const imageSrc = value;
+    socket.on('connect', () => {
+      socket.emit('join', 'client');
+    });
 
-        document.getElementById('qrCodeImage').innerHTML = `<img src="${imageSrc}" alt="QR Code">`;
-      });
-    </script>
-  </body>
+    socket.on('qr', (value) => {
+      console.log('QR received:', value);
+      const imageSrc = value;
+
+      document.getElementById('qrCodeImage').innerHTML = `<img src="${imageSrc}" alt="QR Code">`;
+      document.getElementById('info').textContent = `QR Code URL: ${value}`;
+    });
+
+    socket.on('status', (status) => {
+      console.log('Status:', status);
+    });
+
+    socket.on('log', (message) => {
+      console.log('Log:', message);
+    });
+  </script>
+</body>
 
 </html>

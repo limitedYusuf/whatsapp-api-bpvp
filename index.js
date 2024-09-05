@@ -146,7 +146,7 @@ async function connectToWhatsApp() {
 io.on("connection", async (socket) => {
    soket = socket;
    // console.log(sock)
-   if (isConnected) {
+   if (sock.user && sock.user.jid) {
       updateQR("connected");
    } else if (qr) {
       updateQR("qr");
@@ -162,16 +162,20 @@ const updateQR = (data) => {
       case "qr":
          qrcode.toDataURL(qr, (err, url) => {
             soket?.emit("qr", url);
+            soket?.emit("status", 200);
             soket?.emit("log", "QR Code received, please scan!");
          });
          break;
       case "connected":
+         soket?.emit("status", 201);
          soket?.emit("log", "WhatsApp terhubung!");
          break;
       case "qrscanned":
+         soket?.emit("status", 203);
          soket?.emit("log", "QR Code Telah discan!");
          break;
       case "loading":
+         soket?.emit("status", 204);
          soket?.emit("log", "Registering QR Code , please wait!");
          break;
       default:
