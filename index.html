@@ -13,6 +13,7 @@
     <h1>QR</h1>
     <div id="qrCodeImage"></div>
     <h4>Info <span id="info"></span></h4>
+    <button id="logoutButton" onclick="logout()" style="display: none;">Logout</button>
   </div>
 
   <script src="https://cdn.socket.io/4.4.1/socket.io.min.js"></script>
@@ -28,16 +29,52 @@
       const imageSrc = value;
 
       document.getElementById('qrCodeImage').innerHTML = `<img src="${imageSrc}" alt="QR Code">`;
-      document.getElementById('info').textContent = `QR Code URL: ${value}`;
     });
 
     socket.on('status', (status) => {
       console.log('Status:', status);
+      updateStatus(status);
     });
 
     socket.on('log', (message) => {
       console.log('Log:', message);
     });
+
+    function updateStatus(status) {
+      switch (status) {
+        case 200:
+          document.getElementById('info').innerText = 'QR Code updated';
+          break;
+        case 201:
+          document.getElementById('info').innerText = 'WhatsApp terhubung!';
+          document.getElementById('qrCodeImage').innerHTML = '';
+          logoutButton.style.display = 'block';
+          break;
+        case 203:
+          document.getElementById('info').innerText = 'QR Code Telah discan!';
+          break;
+        case 204:
+          document.getElementById('info').innerText = 'Registering QR Code , please wait!';
+          break;
+        default:
+          break;
+      }
+    }
+
+    function logout() {
+      fetch('http://127.0.0.1:8000/logout', {
+        method: 'GET'
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Logout response:', data);
+      })
+      .catch(error => {
+        console.error('Logout error:', error);
+      });
+    }
+  </script>
+  </script>
   </script>
 </body>
 
