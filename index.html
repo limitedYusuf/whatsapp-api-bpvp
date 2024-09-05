@@ -1,81 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QR Websoket</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-</head>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR WebSocket</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  </head>
 
-<body>
-  <div class="container">
-    <h1>QR</h1>
-    <div id="qrCodeImage"></div>
-    <h4>Info <span id="info"></span></h4>
-    <button id="logoutButton" onclick="logout()" style="display: none;">Logout</button>
-  </div>
+  <body>
+    <div class="container">
+      <h1>QR</h1>
+      <div id="qrCodeImage"></div>
+      <h4>Info <span id="info"></span></h4>
+      <button id="logoutButton" onclick="logout()" style="display: none;">Logout</button>
+    </div>
 
-  <script src="https://cdn.socket.io/4.4.1/socket.io.min.js"></script>
-  <script>
-    const socket = io('http://127.0.0.1:8000/');
+    <script src="https://cdn.socket.io/4.4.1/socket.io.min.js"></script>
+    <script>
+      const socket = io('http://127.0.0.1:8000/');
 
-    socket.on('connect', () => {
-      socket.emit('join', 'client');
-    });
-
-    socket.on('qr', (value) => {
-      console.log('QR received:', value);
-      const imageSrc = value;
-
-      document.getElementById('qrCodeImage').innerHTML = `<img src="${imageSrc}" alt="QR Code">`;
-    });
-
-    socket.on('status', (status) => {
-      console.log('Status:', status);
-      updateStatus(status);
-    });
-
-    socket.on('log', (message) => {
-      console.log('Log:', message);
-    });
-
-    function updateStatus(status) {
-      switch (status) {
-        case 200:
-          document.getElementById('info').innerText = 'QR Code updated';
-          break;
-        case 201:
-          document.getElementById('info').innerText = 'WhatsApp terhubung!';
-          document.getElementById('qrCodeImage').innerHTML = '';
-          logoutButton.style.display = 'block';
-          break;
-        case 203:
-          document.getElementById('info').innerText = 'QR Code Telah discan!';
-          break;
-        case 204:
-          document.getElementById('info').innerText = 'Registering QR Code , please wait!';
-          break;
-        default:
-          break;
-      }
-    }
-
-    function logout() {
-      fetch('http://127.0.0.1:8000/logout', {
-        method: 'GET'
-      })
-      .then(response => response.json())
-      .then(data => {
-        console.log('Logout response:', data);
-      })
-      .catch(error => {
-        console.error('Logout error:', error);
+      socket.on('connect', () => {
+        socket.emit('join', 'client');
       });
-    }
-  </script>
-  </script>
-  </script>
-</body>
+
+      socket.on('qr', (value) => {
+        console.log('QR received:', value);
+        const imageSrc = value;
+
+        document.getElementById('qrCodeImage').innerHTML = `<img src="${imageSrc}" alt="QR Code">`;
+      });
+
+      socket.on('status', (status) => {
+        console.log('Status:', status);
+        updateStatus(status);
+      });
+
+      socket.on('log', (message) => {
+        console.log('Log:', message);
+      });
+
+      function updateStatus(status) {
+        switch (status) {
+          case 200:
+            document.getElementById('info').innerText = 'QR Code updated';
+            break;
+          case 201:
+            document.getElementById('info').innerText = 'WhatsApp terhubung!';
+            document.getElementById('qrCodeImage').innerHTML = '';
+            document.getElementById('logoutButton').style.display = 'block';
+            break;
+          case 203:
+            document.getElementById('info').innerText = 'QR Code Telah discan!';
+            break;
+          case 204:
+            document.getElementById('info').innerText = 'Registering QR Code, please wait!';
+            break;
+          default:
+            break;
+        }
+      }
+
+      function logout() {
+        fetch('http://127.0.0.1:8000/logout', {
+          method: 'GET'
+        })
+          .then(response => response.json())
+          .then(data => {
+            console.log('Logout response:', data);
+            document.getElementById('logoutButton').style.display = 'none';
+            document.getElementById('info').innerText = 'Logout successful';
+            document.getElementById('qrCodeImage').innerHTML = '';
+          })
+          .catch(error => {
+            console.error('Logout error:', error);
+          });
+      }
+    </script>
+  </body>
 
 </html>
